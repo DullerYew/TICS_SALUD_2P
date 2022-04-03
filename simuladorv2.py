@@ -1,11 +1,11 @@
 import time
+import random
 import pandas as pd
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.ui import Select
 
 #### Credenciales de autentificacion para OpenEMR
 admin = {'user':"admin",'password':"pass"}
@@ -14,9 +14,12 @@ clinician = {'user':'clinician','password': 'clinician'}
 receptionist = {'user':'receptionist','password':'receptionist'}
 
 patients = pd.read_csv('./patient_record.csv') #Dataset que contiene los apellidos más comunes en México
+dataset_len = len(patients)
+
+
 #Inicializacon del chromedriver
 PATH_DRIVER= "./chromedriver"
-URL = 'https://demo.openemr.io/openemr/interface/login/login.php?site=default'
+URL = 'https://demo.openemr.io/b/openemr/interface/login/login.php?site=default'
 
 driver = webdriver.Chrome()
 driver.maximize_window()
@@ -32,13 +35,18 @@ username_text_field.send_keys(Keys.ENTER)
 
 
 
-for i in range(0,3):
+for x in range(0,3):
+    i = random.randint(0,dataset_len-1)
+    
     #Crear un nuevo paciente
-    patient_menu = driver.find_element_by_xpath("//*[@id='mainMenu']/div/div[6]/div/div")   #Acceso al menu de "Patient"
+    patient_menu = WebDriverWait(driver,10).until(EC.element_to_be_clickable((By.XPATH,"//*[@id='mainMenu']/div/div[6]/div/div")))
+    #patient_menu = driver.find_element_by_xpath("//*[@id='mainMenu']/div/div[6]/div/div")   #Acceso al menu de "Patient"
     patient_menu.click()
-
     time.sleep(1) # Let the user actually see something!
-    patient_menu_new_search = driver.find_element_by_xpath("//*[@id='mainMenu']/div/div[6]/div/ul/li[1]/div") #Acceso al sub menu New/search para registrar un nuevo paciente
+    
+    
+    patient_menu_new_search = WebDriverWait(driver,10).until(EC.element_to_be_clickable((By.XPATH,"//*[@id='mainMenu']/div/div[6]/div/ul/li[1]/div")))
+    #patient_menu_new_search = driver.find_element_by_xpath("//*[@id='mainMenu']/div/div[6]/div/ul/li[1]/div") #Acceso al sub menu New/search para registrar un nuevo paciente
     patient_menu_new_search.click()
 
     #Cambia de frame a Nuevo Paciente
@@ -74,6 +82,7 @@ for i in range(0,3):
     time.sleep(1) 
 
     #Crear nuevo paciente
+    #boton = WebDriverWait(driver,10).until(EC.element_to_be_clickable((By.NAME,'create')))
     boton = driver.find_element_by_name('create')
     boton.click()
     time.sleep(1)
@@ -84,6 +93,7 @@ for i in range(0,3):
     driver.switch_to.frame(frame_1)
 
     #Confirma el nuevo paciente
+    #boton1 = WebDriverWait(driver,10).until(EC.element_to_be_clickable(("//*[@id='searchResultsHeader']/center/input")))
     boton1 = driver.find_element_by_xpath("//*[@id='searchResultsHeader']/center/input")
     boton1.click()
     time.sleep(1) 
@@ -127,12 +137,14 @@ for i in range(0,3):
     driver.switch_to.frame(frame)
 
     #Selecciona Categoria Clinical
-    el = driver.find_element_by_xpath("//*[@id='category_Clinical']")
+    el = WebDriverWait(driver,10).until(EC.element_to_be_clickable((By.XPATH,"//*[@id='category_Clinical']")))
+    #el = driver.find_element_by_xpath("//*[@id='category_Clinical']")
     el.click()
     time.sleep(1) 
 
     #Selecciona Vitals
-    el = driver.find_element_by_xpath("//*[@id='navbarSupportedContent']/ul[1]/li[2]/div/a[11]")
+    el = WebDriverWait(driver,10).until(EC.element_to_be_clickable((By.XPATH,"//*[@id='navbarSupportedContent']/ul[1]/li[2]/div/a[11]")))
+    #el = driver.find_element_by_xpath("//*[@id='navbarSupportedContent']/ul[1]/li[2]/div/a[11]")
     el.click()
     time.sleep(1) 
 
@@ -186,8 +198,10 @@ for i in range(0,3):
     submit = driver.find_element_by_xpath("/html/body/div[1]/div/div/form/div[3]/div/div/button[1]")
     submit.click()
     
+
     driver.switch_to.default_content()
-    el = driver.find_element_by_xpath("//*[@id='mainMenu']/div/div[6]/div/div")
+    el = WebDriverWait(driver,20).until(EC.element_to_be_clickable((By.XPATH,"//*[@id='mainMenu']/div/div[6]/div/div")))
+    #el = driver.find_element_by_xpath("//*[@id='mainMenu']/div/div[6]/div/div")
     el.click()
     time.sleep(1) 
     
